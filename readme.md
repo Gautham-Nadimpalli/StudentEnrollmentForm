@@ -23,4 +23,4 @@ This project is a web-based Student Enrollment Form that allows users to enter s
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/StudentEnrollmentForm.git
+   git clone https://github.com/Gautham-Nadimpalli/StudentEnrollmentForm.git
