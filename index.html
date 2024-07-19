@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Enrollment Form</title>
+    <script>
+        const jpdbBaseURL = 'http://api.login2explore.com:5577';
+        const jpdbIRL = '/api/iml';
+        const jpdbIML = '/api/irl';
+        const jpdbToken = 'your_connection_token';
+        const dbName = 'SCHOOL-DB';
+        const relName = 'STUDENT-TABLE';
+
+        function resetForm() {
+            document.getElementById("enrollmentForm").reset();
+            document.getElementById("roll_no").disabled = false;
+            document.getElementById("save").disabled = true;
+            document.getElementById("update").disabled = true;
+            document.getElementById("reset").disabled = true;
+        }
+
+        function enableSave() {
+            document.getElementById("save").disabled = false;
+            document.getElementById("reset").disabled = false;
+        }
+
+        function enableUpdate() {
+            document.getElementById("update").disabled = false;
+            document.getElementById("reset").disabled = false;
+        }
+
+        function checkPrimaryKey() {
+            let rollNo = document.getElementById("roll_no").value;
+            if (rollNo) {
+                let getRequest = {
+                    "token": jpdbToken,
+                    "cmd": "GET_BY_KEY",
+                    "dbName": dbName,
+                    "rel": relName,
+                    "key": rollNo
+                };
+                let getReqStr = JSON.stringify(getRequest);
+                let xhr = new XMLHttpRequest();
+                xhr.open("POST", jpdbBaseURL + jpdbIML, true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(getReqStr);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4) {
+                        let resObj = JSON.parse(xhr.responseText);
+                        if (resObj.status === 400) {
+                            enableSave();
+                        } else {
+                            let student = JSON.parse(resObj.data).record;
+                            document.getElementById("full_name").value = student.full_name;
+                            document.getElementById("class").value = student.class;
+                            document.getElementById("birth_date").value = student.birth_date;
+                            document.getElementById("address").value = student.address;
+                            document.getElementById("enrollment_date").value = student.enrollment_date;
+                            document.getElementById("roll_no").disabled = true;
+                            enableUpdate();
+                        }
+                    }
+                };
+            }
+        }
+
+        function saveData() {
+            let rollNo = document.getElementById("roll_no").value;
+            let fullName = document.getElementById("full_name").value;
+            let className = document.getElementById("class").value;
+            let birthDate = document.getElementById("birth_date").value;
+            let address = document.getElementById("address").value;
+            let enrollmentDate = document.getElementById("enrollment_date").value;
+
+            let jsonStr = {
+                roll_no: rollNo,
+                full_name: fullName,
+                class: className,
+                birth_date: birthDate,
+                address: address,
+                enrollment_date: enrollmentDate
+            };
+
+            let putRequest = {
+                token: jpdbToken,
+                cmd: "PUT",
+                dbName: dbName,
+                rel: relName,
+                jsonStr: JSON.stringify(jsonStr)
+            };
+            let putReqStr = JSON.stringify(putRequest);
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", jpdbBaseURL + jpdbIRL, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.send(putReqStr);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    resetForm();
+                }
+            };
+        }
+
+        function updateData() {
+            let rollNo = document.getElementById("roll_no").value;
+            let fullName = document.getElementById("full_name").value;
+            let className = document.getElementById("class").value;
+            let birthDate = document.getElementById("birth_date").value;
+            let address = document.getElementById("address").value;
+            let enrollmentDate = document.getElementById("enrollment_date").value;
+
+            let jsonStr = {
+                roll_no: rollNo,
+                full_name: fullName,
+                class: className,
+                birth_date: birthDate,
+                address: address,
+                enrollment_date: enrollmentDate
+            };
+
+            let updateRequest = {
+                token: jpdbToken,
+                cmd: "UPDATE",
+                dbName: dbName,
+                rel: relName,
+                jsonStr: JSON.stringify(jsonStr)
+            };
+            let updateReqStr = JSON.stringify(updateRequest);
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", jpdbBaseURL + jpdbIRL, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.send(updateReqStr);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4) {
+                    resetForm();
+                }
+            };
+        }
+    </script>
+</head>
+<body onload="resetForm()">
+    <h2>Student Enrollment Form</h2>
+    <form id="enrollmentForm" onsubmit="return false;">
+        <label for="roll_no">Roll No:</label>
+        <input type="number" id="roll_no" name="roll_no" onblur="checkPrimaryKey()"><br><br>
+        <label for="full_name">Full Name:</label>
+        <input type="text" id="full_name" name="full_name"><br><br>
+        <label for="class">Class:</label>
+        <input type="text" id="class" name="class"><br><br>
+        <label for="birth_date">Birth Date:</label>
+        <input type="date" id="birth_date" name="birth_date"><br><br>
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address"><br><br>
+        <label for="enrollment_date">Enrollment Date:</label>
+        <input type="date" id="enrollment_date" name="enrollment_date"><br><br>
+        <button type="button" id="save" onclick="saveData()" disabled>Save</button>
+        <button type="button" id="update" onclick="updateData()" disabled>Update</button>
+        <button type="button" id="reset" onclick="resetForm()" disabled>Reset</button>
+    </form>
+</body>
+</html>
